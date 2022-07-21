@@ -45,7 +45,7 @@ func! s:InitHeaderInfo()
 
     let l:curpos = getcurpos()
 
-    if &ft ==? 'asciidoc'
+    if &ft ==? 'asciidoc' || &ft ==? 'asciidoctor'
         " Look for a doc header (level 0)
 "        call Decho("Searching for AD doc header/title")
         " [line number, header level, title]
@@ -82,7 +82,7 @@ func! s:InitHeaderInfo()
 
     call setpos('.', l:curpos)
 
-    if &ft ==? 'asciidoc' && b:musecnav_hasdocheader && b:musecnav_firstsecheader[1] != 1
+    if (&ft ==? 'asciidoc'  || &ft ==? 'asciidoctor') && b:musecnav_hasdocheader && b:musecnav_firstsecheader[1] != 1
         throw "MU18: book doctype initial section must be level 1"
     endif
 "    call Dret("InitHeaderInfo - normal exit")
@@ -613,7 +613,7 @@ func! s:FindNextSection(...) abort
     endif
 
     " Note: file type check is done earlier so if..else is fine here
-    if &ft ==? 'asciidoc'
+    if &ft ==? 'asciidoc' || &ft ==? 'asciidoctor'
         let l:ret = s:NextSection_Asciidoc(l:bkwd)
     else
         let l:ret = s:NextSection_Markdown(l:bkwd)
@@ -777,7 +777,7 @@ func! s:FindFirstSecHeader()
 "    call Dfunc("FindFirstSecHead()")
     call cursor(1, 1)
 
-    if &ft ==? 'asciidoc'
+    if &ft ==? 'asciidoc' || &ft ==? 'asciidoctor'
         if b:musecnav_hasdocheader
             if b:musecnav_docheader[1]
                 " already found it (first header is not a doc header)
@@ -1087,7 +1087,7 @@ func! s:MenuizeTree(level, secline, tree) abort
 
     let l:sibrangestart = 1
     let l:sibrangeend = line('$')
-    if &ft ==? 'asciidoc' && b:musecnav_hasdocheader
+    if (&ft ==? 'asciidoc' || &ft ==? 'asciidoctor') && b:musecnav_hasdocheader
         " If there's a document header it'll be first menu item (ROOT)
         let l:levellist = [[0, 1, b:musecnav_docheader[2] . " (ROOT)"]]
     else
@@ -1516,7 +1516,7 @@ func! musecnav#navigate(...)
     endif
 
     try
-        if &ft !=? 'asciidoc' && &ft !=? 'markdown'
+        if &ft !=? 'asciidoc' && &ft !=? 'asciidoctor' && &ft !=? 'markdown'
 "            call Dret("musecnav#navigate - Wrong filetype")
             echohl WarningMsg | echo "Not a valid filetype: " . &ft | echohl None
             return
@@ -1524,7 +1524,7 @@ func! musecnav#navigate(...)
 
         " Do some file type specific setup and checks
         let b:leveladj = 0
-        if &ft ==? 'asciidoc'
+        if &ft ==? 'asciidoc' || &ft ==? 'asciidoctor'
             let b:leveladj = 1
             if b:musecnav_use_ad_synhi && !exists("g:syntax_on")
                 " For now just quietly disable the double-check
